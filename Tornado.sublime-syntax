@@ -1,0 +1,58 @@
+%YAML 1.2
+---
+name: Tornado
+file_extensions: [html, htm]
+first_line_match: "{%"
+scope: text.tornado
+contexts:
+  main:
+    - match: ""
+      set: "Packages/HTML/HTML.sublime-syntax"
+      with_prototype:
+        - match: "{{"
+          push: expression
+        - match: "{#"
+          push: comment
+        - match: "{% comment"
+          push: comment2
+        - match: "{% "
+          push: command
+        - match: "(}|#|%)}"
+          scope: invalid.illegal.stray-bracket-end
+
+  expression:
+    - meta_scope: keyword.control.python
+    - match: ""
+      set: "Packages/Python/Python.sublime-syntax"
+      with_prototype:
+      - match: "}}"
+        scope: keyword.control.python
+        pop: true
+
+  command:
+    - meta_scope: keyword.control.python
+    - match: "module|set|raw|autoescape|apply"
+      scope: keyword.control.python
+    - match: "block|extends|include|end|whitespace"
+      set: block
+    - match: ""
+      set: "Packages/Python/Python.sublime-syntax"
+      with_prototype:
+      - match: "%}"
+        scope: keyword.control.python
+        pop: true
+
+  comment:
+    - meta_scope: comment.line.number-sign.python
+    - match: "#}"
+      pop: true
+
+  comment2:
+    - meta_scope: comment.line.number-sign.python
+    - match: "%}"
+      pop: true
+
+  block:
+    - meta_scope: keyword.control.python
+    - match: "%}"
+      pop: true
